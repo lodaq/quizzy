@@ -1,155 +1,52 @@
-# Quizzy - Quiz Platform MVP
+# Quizzy
 
-## Overview
+![Status: Under development](https://img.shields.io/badge/status-under_development-orange)
 
-Quizzy is a modern quiz creation and sharing platform that allows users to create interactive quizzes and share them with others. The MVP focuses on core functionality with a clean, responsive interface.
+A browser-local quiz builder and player. Create quizzes, practice with multiple-choice and true-or-false questions, and review scores and previous attempts.
 
-## Core Features
+## Current implementation
 
-### 1. Quiz Management
+- Create, edit, duplicate, and delete quizzes.
+- Browse sample and saved quizzes by category or search.
+- Play quizzes, navigate questions, and review results and explanations.
+- Store quizzes and attempt history in the current browser's `localStorage`.
 
-- **Create Quiz**: Users can build quizzes with custom titles, descriptions, and categories
-- **Edit Quiz**: Full editing capabilities for existing quizzes
-- **Delete Quiz**: Remove quizzes with confirmation prompts
-- **Duplicate Quiz**: Clone existing quizzes as templates
+The current app uses Next.js 13, React 18, TypeScript, Tailwind CSS, Radix/shadcn components, React Hook Form, and Zod. It has no implemented PostgreSQL/Prisma backend, account authentication, or remote quiz synchronization.
 
-### 2. Question Types
+## Data and sharing limits
 
-- **Multiple Choice**: 2-6 answer options with single correct answer
-- **True/False**: Binary choice questions
-- **Future considerations**: Short answer, fill-in-the-blank
+Quiz data belongs to this browser profile. Clearing site data removes it, and another device or browser does not receive it. A URL containing a quiz ID does not transfer a browser-local quiz to someone else. Public-library labels and sharing controls should be treated as prototype UI until remote persistence and access controls are implemented.
 
-### 3. Quiz Sharing & Discovery
+This project is under active development and uses an older framework version. Review dependencies and security before deploying it publicly.
 
-- **Shareable Links**: Generate unique URLs for each quiz
-- **Public Quiz Library**: Browse quizzes created by other users
-- **Category Filtering**: Filter quizzes by topic/category
-- **Search Functionality**: Find quizzes by title or description
+## Run locally
 
-### 4. Quiz Taking Experience
-
-- **Question Navigation**: One question per screen with clear progression
-- **Progress Tracking**: Visual progress bar showing completion percentage
-- **Immediate Feedback**: Show correct/incorrect status after each answer
-- **Answer Explanation**: Optional explanations for correct answers
-- **Timer Support**: Optional time limits per question or entire quiz
-
-### 5. Results & Analytics
-
-- **Detailed Score Report**: Percentage, correct/incorrect breakdown
-- **Question-by-Question Review**: See what was answered correctly/incorrectly
-- **Performance History**: Track previous attempts (guest session only)
-- **Social Sharing**: Share results on social media
-- **Retry Options**: Retake quiz or try similar quizzes
-
-## User Interface
-
-### Core Pages
-
-1. **Landing Page**: Featured quizzes, categories, search
-2. **Quiz Browser**: Category-based quiz discovery
-3. **Quiz Creator**: Step-by-step quiz building interface
-4. **Quiz Player**: Clean, distraction-free quiz taking experience
-5. **Results Page**: Comprehensive score and performance display
-6. **My Quizzes**: Personal quiz management dashboard
-
-### Design Principles
-
-- **Mobile-First**: Optimized for mobile devices with responsive breakpoints
-- **Accessibility**: WCAG 2.1 AA compliance with proper contrast and keyboard navigation
-- **Clean UI**: Minimal, intuitive interface using Shadcn/ui components
-- **Fast Loading**: Optimized performance with Next.js features
-
-## Technical Architecture
-
-### Frontend (Next.js 14+)
-
-- **App Router**: Modern routing with server components
-- **TypeScript**: Full type safety throughout the application
-- **Tailwind CSS**: Utility-first styling with custom design system
-- **Shadcn/ui**: Pre-built, accessible UI components
-- **React Hook Form**: Form management with validation
-- **Zustand**: Lightweight state management for quiz creation
-
-### Backend
-
-- **Next.js API Routes**: Server-side API endpoints
-- **PostgreSQL**: Primary database with proper indexing
-- **Prisma ORM**: Type-safe database operations
-- **Zod**: Runtime schema validation
-
-### Database Schema
-
-```sql
--- Users (for future authentication)
-users: id, username, email, created_at
-
--- Quizzes
-quizzes: id, title, description, category, creator_id, is_public, created_at, updated_at
-
--- Questions
-questions: id, quiz_id, type, question_text, order_index, time_limit, explanation
-
--- Answer Options
-answer_options: id, question_id, option_text, is_correct, order_index
-
--- Quiz Attempts (guest sessions)
-quiz_attempts: id, quiz_id, session_id, score, completed_at, answers_data
+```sh
+git clone https://github.com/lodaq/quizzy.git
+cd quizzy
+npm ci
+npm run dev
 ```
 
-## MVP Limitations & Future Features
+Use a Node.js version compatible with the dependencies in `package-lock.json`. Open http://localhost:3000. No database or API credentials are required by the current storage implementation.
 
-### Current Limitations
+## Development
 
-- **Guest-Only Mode**: No user accounts or persistent data
-- **Basic Question Types**: Only multiple choice and true/false
-- **No Real-Time**: No live quiz sessions or multiplayer features
-- **Limited Analytics**: Basic score tracking only
+```sh
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-### Phase 2 Features
+No automated test script is currently defined.
 
-- User authentication and profiles
-- Quiz collaboration and team features
-- Advanced question types (drag-drop, image-based)
-- Real-time multiplayer quizzes
-- Detailed analytics and insights
-- Quiz templates and themes
-- Export/import functionality
+- `app/`: home, browse, create, edit, play, results, and My Quizzes routes.
+- `lib/storage.ts`: sample quizzes and browser-local persistence.
+- `types/quiz.ts`: quiz, question, option, and attempt contracts.
+- `components/`: quiz forms, player, cards, and shared interface controls.
 
-## Development Phases
+The original backend, multiplayer, and account ideas are future work, not guarantees of the current implementation.
 
-### Phase 1 (Weeks 1-2)
+## Known verification blockers
 
-- [ ] Project setup and basic UI components
-- [ ] Database schema and models
-- [ ] Quiz creation interface
-- [ ] Basic quiz player
-
-### Phase 2 (Weeks 3-4)
-
-- [ ] Quiz sharing functionality
-- [ ] Results and scoring system
-- [ ] Category system and filtering
-- [ ] Mobile optimization
-
-### Phase 3 (Week 5)
-
-- [ ] Polish UI/UX
-- [ ] Performance optimization
-- [ ] Testing and bug fixes
-- [ ] Deployment preparation
-
-## Success Metrics
-
-- **User Engagement**: Average time spent creating/taking quizzes
-- **Quiz Completion Rate**: Percentage of started quizzes that are completed
-- **Sharing Rate**: How often quizzes are shared
-- **Return Usage**: Users returning to create or take more quizzes
-
-## Technical Considerations
-
-- **SEO Friendly**: Proper meta tags and Open Graph for shared quizzes
-- **Performance**: Lazy loading, image optimization, and caching strategies
-- **Error Handling**: Graceful error states and offline support
-- **Data Validation**: Client and server-side validation for all inputs
-- **Security**: SQL injection prevention, XSS protection, rate limiting
+As checked on 2026-11-06, type checking reports nullable question time limits passed to form inputs in the create and edit pages. The production build also rejects client pages that export `generateStaticParams`, starting with the results route. These existing issues must be resolved before claiming a working static export.
